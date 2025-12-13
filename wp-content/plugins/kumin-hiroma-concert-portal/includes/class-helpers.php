@@ -4,6 +4,33 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+if ( ! function_exists( 'khcp_calculate_third_saturday' ) ) {
+    /**
+     * 指定年月の第3土曜日を Ymd 形式で返す。
+     *
+     * @param int $year  西暦年。
+     * @param int $month 月。
+     * @return string|null
+     */
+    function khcp_calculate_third_saturday( $year, $month ) {
+        try {
+            $first_of_month = new DateTimeImmutable(
+                sprintf( '%04d-%02d-01', (int) $year, (int) $month ),
+                wp_timezone()
+            );
+            $third_saturday = $first_of_month->modify( 'third saturday' );
+
+            if ( ! $third_saturday ) {
+                return null;
+            }
+
+            return $third_saturday->format( 'Ymd' );
+        } catch ( Exception $e ) {
+            return null;
+        }
+    }
+}
+
 /**
  * ショートコードやテンプレートから利用する補助関数群。
  */
@@ -11,7 +38,7 @@ class KHC_Helpers {
     /**
      * 開催日を保存する際のフォーマット。
      */
-    public const HELD_DATE_FORMAT = 'Y-m-d';
+    public const HELD_DATE_FORMAT = 'Ymd';
 
     /**
      * 開催情報に用いるACFフィールド名をまとめる。
@@ -62,8 +89,8 @@ class KHC_Helpers {
         $date_format     = self::HELD_DATE_FORMAT;
         $today           = wp_date( $date_format, time(), wp_timezone() );
         $held_date_field = self::FIELD_KEYS['held_date'];
-        $orderby         = 'meta_value';
-        $meta_type       = 'DATE';
+        $orderby         = 'meta_value_num';
+        $meta_type       = 'NUMERIC';
 
         $query = new WP_Query(
             [
@@ -169,18 +196,17 @@ class KHC_Helpers {
      * @return DateTimeImmutable|null
      */
     public static function calculate_third_saturday( $year, $month ) {
-        try {
-            $timezone      = wp_timezone();
-            $first_of_month = new DateTimeImmutable( sprintf( '%04d-%02d-01', $year, $month ), $timezone );
-        } catch ( Exception $e ) {
+        $held_date_value = khcp_calculate_third_saturday( (int) $year, (int) $month );
+
+        if ( ! $held_date_value ) {
             return null;
         }
 
-        $first_weekday   = (int) $first_of_month->format( 'w' );
-        $days_until_sats = ( 6 - $first_weekday + 7 ) % 7;
-        $first_saturday  = $first_of_month->modify( sprintf( '+%d days', $days_until_sats ) );
-
-        return $first_saturday ? $first_saturday->modify( '+14 days' ) : null;
+        try {
+            return new DateTimeImmutable( $held_date_value, wp_timezone() );
+        } catch ( Exception $e ) {
+            return null;
+        }
     }
 
     /**

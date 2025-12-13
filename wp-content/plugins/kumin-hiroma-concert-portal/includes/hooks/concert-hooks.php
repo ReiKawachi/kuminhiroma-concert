@@ -40,6 +40,10 @@ class KHC_Concert_Hooks {
             return;
         }
 
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return;
+        }
+
         if ( wp_is_post_autosave( $resolved_post_id ) || wp_is_post_revision( $resolved_post_id ) ) {
             return;
         }
@@ -57,27 +61,41 @@ class KHC_Concert_Hooks {
             return;
         }
 
+        $current_value       = KHC_Helpers::get_field_value( $resolved_post_id, 'held_date' );
+        $performer_names     = $this->build_performer_names( $resolved_post_id );
+        $held_date           = KHC_Helpers::parse_held_date( $held_date_value, $resolved_post_id );
+        $date_label          = $held_date instanceof DateTimeImmutable ? $held_date->format( 'Y年n月j日' ) : '';
+
+        $new_title = $date_label ? '【' . $date_label . '】' : '';
+
+        if ( ! empty( $performer_names ) ) {
+            $new_title .= ' ' . implode( ' ', $performer_names );
+        }
+
+        $should_update_meta  = (string) $current_value !== (string) $held_date_value;
+        $should_update_title = ! empty( $new_title ) && $new_title !== get_the_title( $resolved_post_id );
+
+        if ( ! $should_update_meta && ! $should_update_title ) {
+            return;
+        }
+
         self::$is_processing = true;
         remove_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
         remove_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
 
-        if ( function_exists( 'update_field' ) ) {
-            update_field( KHC_Helpers::FIELD_KEYS['held_date'], $held_date_value, $resolved_post_id );
-        } else {
-            update_post_meta( $resolved_post_id, KHC_Helpers::FIELD_KEYS['held_date'], $held_date_value );
+        if ( $should_update_meta ) {
+            if ( function_exists( 'update_field' ) ) {
+                update_field( KHC_Helpers::FIELD_KEYS['held_date'], $held_date_value, $resolved_post_id );
+            } else {
+                update_post_meta( $resolved_post_id, KHC_Helpers::FIELD_KEYS['held_date'], $held_date_value );
+            }
         }
 
-        $held_date = KHC_Helpers::parse_held_date( $held_date_value, $resolved_post_id );
-
-        if ( $held_date instanceof DateTimeImmutable ) {
-            $title = $held_date->format( 'Y年n月j日' );
-            $slug  = $held_date->format( 'Y-m-d' );
-
+        if ( $should_update_title ) {
             wp_update_post(
                 [
                     'ID'         => $resolved_post_id,
-                    'post_title' => $title,
-                    'post_name'  => sanitize_title( $slug ),
+                    'post_title' => $new_title,
                 ]
             );
         }
@@ -116,5 +134,42 @@ class KHC_Concert_Hooks {
         }
 
         return null;
+    }
+
+    /**
+     * タイトル整形用に出演者名を取得する。
+     *
+     * @param int $concert_id コンサート投稿ID。
+     * @return string[]
+     */
+    private function build_performer_names( $concert_id ) {
+        $names = [];
+
+        foreach ( [ 'slot1_group', 'slot2_group' ] as $slot_key ) {
+            $group_value = KHC_Helpers::get_field_value( $concert_id, $slot_key );
+            $group_id    = null;
+
+            if ( $group_value instanceof WP_Post ) {
+                $group_id = $group_value->ID;
+            } elseif ( is_numeric( $group_value ) ) {
+                $group_id = (int) $group_value;
+            }
+
+            if ( ! $group_id ) {
+                continue;
+            }
+
+            $group_name = KHC_Helpers::get_group_field_value( $group_id, 'group_name' );
+
+            if ( empty( $group_name ) ) {
+                $group_name = get_the_title( $group_id );
+            }
+
+            if ( ! empty( $group_name ) ) {
+                $names[] = $group_name;
+            }
+        }
+
+        return $names;
     }
 }
