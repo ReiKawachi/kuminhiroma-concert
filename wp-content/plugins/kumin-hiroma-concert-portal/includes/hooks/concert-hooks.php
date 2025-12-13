@@ -62,15 +62,9 @@ class KHC_Concert_Hooks {
         }
 
         $current_value       = KHC_Helpers::get_field_value( $resolved_post_id, 'held_date' );
-        $performer_names     = $this->build_performer_names( $resolved_post_id );
         $held_date           = KHC_Helpers::parse_held_date( $held_date_value, $resolved_post_id );
         $date_label          = $held_date instanceof DateTimeImmutable ? $held_date->format( 'Y年n月j日' ) : '';
-
-        $new_title = $date_label ? '【' . $date_label . '】' : '';
-
-        if ( ! empty( $performer_names ) ) {
-            $new_title .= ' ' . implode( ' ', $performer_names );
-        }
+        $new_title           = $this->build_concert_title( $resolved_post_id, $date_label );
 
         $should_update_meta  = (string) $current_value !== (string) $held_date_value;
         $should_update_title = ! empty( $new_title ) && $new_title !== get_the_title( $resolved_post_id );
@@ -139,37 +133,60 @@ class KHC_Concert_Hooks {
     /**
      * タイトル整形用に出演者名を取得する。
      *
-     * @param int $concert_id コンサート投稿ID。
-     * @return string[]
+     * @param int    $concert_id コンサート投稿ID。
+     * @param string $slot_key   出演スロットキー。
+     * @return string
      */
-    private function build_performer_names( $concert_id ) {
-        $names = [];
+    private function get_performer_name( $concert_id, $slot_key ) {
+        $group_value = KHC_Helpers::get_field_value( $concert_id, $slot_key );
+        $group_id    = null;
 
-        foreach ( [ 'slot1_group', 'slot2_group' ] as $slot_key ) {
-            $group_value = KHC_Helpers::get_field_value( $concert_id, $slot_key );
-            $group_id    = null;
-
-            if ( $group_value instanceof WP_Post ) {
-                $group_id = $group_value->ID;
-            } elseif ( is_numeric( $group_value ) ) {
-                $group_id = (int) $group_value;
-            }
-
-            if ( ! $group_id ) {
-                continue;
-            }
-
-            $group_name = KHC_Helpers::get_group_field_value( $group_id, 'group_name' );
-
-            if ( empty( $group_name ) ) {
-                $group_name = get_the_title( $group_id );
-            }
-
-            if ( ! empty( $group_name ) ) {
-                $names[] = $group_name;
-            }
+        if ( $group_value instanceof WP_Post ) {
+            $group_id = $group_value->ID;
+        } elseif ( is_numeric( $group_value ) ) {
+            $group_id = (int) $group_value;
         }
 
-        return $names;
+        if ( ! $group_id ) {
+            return '';
+        }
+
+        $group_name = KHC_Helpers::get_group_field_value( $group_id, 'group_name' );
+
+        if ( empty( $group_name ) ) {
+            $group_name = get_the_title( $group_id );
+        }
+
+        return (string) $group_name;
+    }
+
+    /**
+     * 開催日と出演者をもとにタイトル文字列を生成する。
+     *
+     * @param int    $concert_id コンサートID。
+     * @param string $date_label Y年n月j日 表記の開催日。
+     * @return string
+     */
+    private function build_concert_title( $concert_id, $date_label ) {
+        if ( empty( $date_label ) ) {
+            return '';
+        }
+
+        $title  = '【' . $date_label . '】';
+        $slot1  = $this->get_performer_name( $concert_id, 'slot1_group' );
+        $slot2  = $this->get_performer_name( $concert_id, 'slot2_group' );
+        $names  = array_values( array_filter( [ $slot1, $slot2 ], 'strlen' ) );
+
+        if ( empty( $names ) ) {
+            return $title;
+        }
+
+        $title .= $names[0];
+
+        if ( isset( $names[1] ) ) {
+            $title .= ' ／ ' . $names[1];
+        }
+
+        return $title;
     }
 }

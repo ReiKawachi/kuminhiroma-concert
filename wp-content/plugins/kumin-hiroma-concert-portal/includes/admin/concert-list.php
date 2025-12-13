@@ -17,6 +17,7 @@ class KHC_Concert_List_Admin {
         add_filter( 'manage_edit-concert_columns', [ $this, 'add_concert_columns' ] );
         add_action( 'manage_concert_posts_custom_column', [ $this, 'render_concert_columns' ], 10, 2 );
         add_filter( 'manage_edit-concert_sortable_columns', [ $this, 'make_columns_sortable' ] );
+        add_filter( 'disable_months_dropdown', [ $this, 'disable_months_dropdown' ], 10, 2 );
     }
 
     /**
@@ -35,7 +36,7 @@ class KHC_Concert_List_Admin {
 
         echo '<label for="concert_fiscal_year" class="screen-reader-text">' . esc_html( $year_label ) . '</label>';
         echo '<select name="concert_fiscal_year" id="concert_fiscal_year">';
-        echo '<option value="">' . esc_html( $year_label ) . '</option>';
+        echo '<option value="">' . esc_html__( 'すべて', 'kumin-hiroma-concert-portal' ) . '</option>';
 
         foreach ( $fiscal_years as $year ) {
             printf(
@@ -54,7 +55,7 @@ class KHC_Concert_List_Admin {
 
         echo '<label for="concert_month" class="screen-reader-text">' . esc_html( $label_text ) . '</label>';
         echo '<select name="concert_month" id="concert_month">';
-        echo '<option value="">' . esc_html( $label_text ) . '</option>';
+        echo '<option value="">' . esc_html__( 'すべて', 'kumin-hiroma-concert-portal' ) . '</option>';
 
         foreach ( $months as $month ) {
             printf(
@@ -89,6 +90,8 @@ class KHC_Concert_List_Admin {
             return;
         }
 
+        $meta_query  = $query->get( 'meta_query' );
+        $meta_query  = is_array( $meta_query ) ? $meta_query : [];
         $meta_filters = [];
 
         $fiscal_year = filter_input( INPUT_GET, 'concert_fiscal_year', FILTER_SANITIZE_NUMBER_INT );
@@ -96,21 +99,26 @@ class KHC_Concert_List_Admin {
 
         if ( ! empty( $fiscal_year ) ) {
             $meta_filters[] = [
-                'key'   => KHC_Helpers::FIELD_KEYS['fiscal_year'],
-                'value' => absint( $fiscal_year ),
+                'key'     => KHC_Helpers::FIELD_KEYS['fiscal_year'],
+                'value'   => absint( $fiscal_year ),
+                'compare' => '=',
             ];
         }
 
         if ( ! empty( $month ) ) {
             $meta_filters[] = [
-                'key'   => KHC_Helpers::FIELD_KEYS['month'],
-                'value' => absint( $month ),
+                'key'     => KHC_Helpers::FIELD_KEYS['month'],
+                'value'   => absint( $month ),
+                'compare' => '=',
             ];
         }
 
+        foreach ( $meta_filters as $filter ) {
+            $meta_query[] = $filter;
+        }
+
         if ( ! empty( $meta_filters ) ) {
-            $meta_query   = (array) $query->get( 'meta_query', [] );
-            $meta_query[] = array_merge( [ 'relation' => 'AND' ], $meta_filters );
+            $meta_query['relation'] = isset( $meta_query['relation'] ) ? $meta_query['relation'] : 'AND';
             $query->set( 'meta_query', $meta_query );
         }
 
@@ -120,8 +128,8 @@ class KHC_Concert_List_Admin {
 
         if ( empty( $orderby ) ) {
             $query->set( 'meta_key', KHC_Helpers::FIELD_KEYS['held_date'] );
-            $query->set( 'orderby', 'meta_value' );
-            $query->set( 'order', $order );
+            $query->set( 'orderby', 'meta_value_num' );
+            $query->set( 'order', 'ASC' );
             return;
         }
 
@@ -138,7 +146,7 @@ class KHC_Concert_List_Admin {
                 break;
             case 'held_date':
                 $query->set( 'meta_key', KHC_Helpers::FIELD_KEYS['held_date'] );
-                $query->set( 'orderby', 'meta_value' );
+                $query->set( 'orderby', 'meta_value_num' );
                 $query->set( 'order', $order );
                 break;
         }
@@ -152,6 +160,10 @@ class KHC_Concert_List_Admin {
      */
     public function add_concert_columns( $columns ) {
         $new_columns = [];
+
+        if ( isset( $columns['taxonomy-fiscal_year'] ) ) {
+            unset( $columns['taxonomy-fiscal_year'] );
+        }
 
         foreach ( $columns as $key => $label ) {
             $new_columns[ $key ] = $label;
@@ -217,6 +229,21 @@ class KHC_Concert_List_Admin {
         $columns['held_date']           = 'held_date';
 
         return $columns;
+    }
+
+    /**
+     * コアの「すべての日付」ドロップダウンをコンサート一覧では表示しない。
+     *
+     * @param bool   $disable   非表示フラグ。
+     * @param string $post_type 投稿タイプ。
+     * @return bool
+     */
+    public function disable_months_dropdown( $disable, $post_type ) {
+        if ( 'concert' === $post_type ) {
+            return true;
+        }
+
+        return $disable;
     }
 
     /**
