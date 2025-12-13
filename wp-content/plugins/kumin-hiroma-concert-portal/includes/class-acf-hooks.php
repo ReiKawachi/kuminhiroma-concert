@@ -22,7 +22,7 @@ class KHC_ACF_Hooks {
         add_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
         add_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
         add_filter( 'acf/load_field/name=held_date', [ $this, 'make_held_date_readonly' ] );
-        add_filter( 'acf/load_field/name=concert_fiscal_year', [ $this, 'populate_concert_fiscal_year_choices' ], 100 );
+        add_filter( 'acf/prepare_field/name=concert_fiscal_year', [ $this, 'prepare_concert_fiscal_year_choices' ], 1000 );
         $this->register_concert_fiscal_year_key_filter();
     }
 
@@ -90,30 +90,22 @@ class KHC_ACF_Hooks {
      * @param array $field ACFフィールド設定。
      * @return array
      */
-    public function populate_concert_fiscal_year_choices( $field ) {
-        if ( isset( $field['_khc_choices_populated'] ) ) {
-            return $field;
-        }
-
+    public function prepare_concert_fiscal_year_choices( $field ) {
         $now_timezone = wp_timezone();
         $current_year = (int) wp_date( 'Y', current_time( 'timestamp' ), $now_timezone );
 
-        $choices = [];
+        $field['choices'] = [];
 
         for ( $offset = 0; $offset <= 2; $offset++ ) {
-            $year                = $current_year + $offset;
-            $choices[ $year ]    = (string) $year;
+            $year                     = $current_year + $offset;
+            $field['choices'][ $year ] = (string) $year;
         }
 
-        $field['choices'] = $choices;
-
-        if ( ! empty( $field['value'] ) && ! isset( $choices[ $field['value'] ] ) ) {
+        if ( ! empty( $field['value'] ) && ! isset( $field['choices'][ $field['value'] ] ) ) {
             $field['choices'][ $field['value'] ] = (string) $field['value'];
         }
 
         $field['default_value'] = $current_year;
-
-        $field['_khc_choices_populated'] = true;
 
         return $field;
     }
@@ -132,7 +124,7 @@ class KHC_ACF_Hooks {
             return;
         }
 
-        add_filter( 'acf/load_field/key=' . $field['key'], [ $this, 'populate_concert_fiscal_year_choices' ], 100 );
+        add_filter( 'acf/prepare_field/key=' . $field['key'], [ $this, 'prepare_concert_fiscal_year_choices' ], 1000 );
     }
 
     /**

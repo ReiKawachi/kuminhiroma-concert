@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-posttypes.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-taxonomies.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-helpers.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-acf-hooks.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-shortcodes.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-activator.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/admin/group-admin.php';
@@ -36,6 +37,7 @@ function khc_init_plugin() {
     $concert_list_admin = new KHC_Concert_List_Admin();
     $concert_hooks = new KHC_Concert_Hooks();
     $group_hooks   = new KHC_Group_Hooks();
+    $acf_hooks     = new KHC_ACF_Hooks();
     $next_concert_shortcode = new KHC_Next_Concert_Shortcode();
 
     add_action( 'init', [ $posttypes, 'register_post_types' ] );
@@ -45,6 +47,7 @@ function khc_init_plugin() {
     $group_hooks->register_hooks();
     $group_admin->register_admin_hooks();
     $concert_list_admin->register_hooks();
+    $acf_hooks->register_hooks();
     $next_concert_shortcode->register();
 }
 add_action( 'plugins_loaded', 'khc_init_plugin' );
