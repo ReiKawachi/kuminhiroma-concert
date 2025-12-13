@@ -9,13 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class KHC_Group_Admin {
     /**
-     * 出演者カテゴリー表示に使うタクソノミースラッグ。
-     *
-     * @var string|null
-     */
-    private $group_category_taxonomy = null;
-
-    /**
      * 管理画面調整を適用する投稿タイプ。
      *
      * @var string[]
@@ -171,48 +164,19 @@ class KHC_Group_Admin {
                 echo esc_html( $genre ? $genre : '—' );
                 break;
             case 'khc_group_category':
-                $taxonomy = $this->get_group_category_taxonomy();
+                $category = KHC_Helpers::get_group_field_value( $post_id, 'group_category' );
 
-                if ( empty( $taxonomy ) ) {
+                if ( empty( $category ) ) {
                     echo '—';
                     break;
                 }
 
-                $terms = get_the_terms( $post_id, $taxonomy );
-
-                if ( is_wp_error( $terms ) || empty( $terms ) ) {
-                    echo '—';
-                    break;
+                if ( is_array( $category ) ) {
+                    $category = implode( ', ', array_filter( array_map( 'strval', $category ) ) );
                 }
 
-                $names = wp_list_pluck( $terms, 'name' );
-                echo esc_html( implode( ', ', $names ) );
+                echo esc_html( $category );
                 break;
         }
-    }
-
-    /**
-     * 出演者カテゴリーとして扱うタクソノミーを判定する。
-     *
-     * @return string タクソノミースラッグ。見つからない場合は空文字。
-     */
-    private function get_group_category_taxonomy() {
-        if ( null !== $this->group_category_taxonomy ) {
-            return $this->group_category_taxonomy;
-        }
-
-        $candidates = [ 'group_category', 'category' ];
-        $taxonomies = get_object_taxonomies( 'group', 'names' );
-
-        foreach ( $candidates as $taxonomy ) {
-            if ( in_array( $taxonomy, $taxonomies, true ) ) {
-                $this->group_category_taxonomy = $taxonomy;
-                return $this->group_category_taxonomy;
-            }
-        }
-
-        $this->group_category_taxonomy = ! empty( $taxonomies ) ? $taxonomies[0] : '';
-
-        return $this->group_category_taxonomy;
     }
 }

@@ -62,6 +62,7 @@ class KHC_Helpers {
         'desc'       => 'desc',
         'photo'      => 'photo',
         'songs'      => 'songs',
+        'group_category' => 'group_category',
     ];
 
     /**
