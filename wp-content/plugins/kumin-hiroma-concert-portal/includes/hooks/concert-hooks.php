@@ -20,7 +20,6 @@ class KHC_Concert_Hooks {
      */
     public function register_hooks() {
         add_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
-        add_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
         add_filter( 'acf/load_field/name=held_date', [ $this, 'make_held_date_readonly' ] );
     }
 
@@ -75,7 +74,6 @@ class KHC_Concert_Hooks {
 
         self::$is_processing = true;
         remove_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
-        remove_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
 
         if ( $should_update_meta ) {
             if ( function_exists( 'update_field' ) ) {
@@ -95,7 +93,6 @@ class KHC_Concert_Hooks {
         }
 
         add_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
-        add_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
         self::$is_processing = false;
     }
 

@@ -22,6 +22,7 @@ class KHC_ACF_Hooks {
         add_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
         add_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
         add_filter( 'acf/load_field/name=held_date', [ $this, 'make_held_date_readonly' ] );
+        add_filter( 'acf/load_field/name=concert_fiscal_year', [ $this, 'populate_concert_fiscal_year_choices' ] );
     }
 
     /**
@@ -77,6 +78,35 @@ class KHC_ACF_Hooks {
     public function make_held_date_readonly( $field ) {
         $field['readonly'] = true;
         $field['disabled'] = true;
+
+        return $field;
+    }
+
+    /**
+     * 開催年度セレクトの選択肢を当年＋2年まで動的に設定する。
+     * 既存値が範囲外の場合は表示崩れを防ぐために一時的に選択肢へ追加する。
+     *
+     * @param array $field ACFフィールド設定。
+     * @return array
+     */
+    public function populate_concert_fiscal_year_choices( $field ) {
+        $now_timezone = wp_timezone();
+        $current_year = (int) wp_date( 'Y', current_time( 'timestamp' ), $now_timezone );
+
+        $choices = [];
+
+        for ( $offset = 0; $offset <= 2; $offset++ ) {
+            $year                = $current_year + $offset;
+            $choices[ $year ]    = (string) $year;
+        }
+
+        $field['choices'] = $choices;
+
+        if ( ! empty( $field['value'] ) && ! isset( $choices[ $field['value'] ] ) ) {
+            $field['choices'][ $field['value'] ] = (string) $field['value'];
+        }
+
+        $field['default_value'] = $current_year;
 
         return $field;
     }
