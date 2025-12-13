@@ -29,19 +29,21 @@ wp-content/
 - ショートコード：
   - `[khc_next_concert]` 今日以降で最も近いコンサート回を1件表示
 
-## 仮メタキー（後にACFフィールドへ置換予定）
-- `khc_held_date`（Y-m-d）
-- `khc_start_time`（H:i）
-- `khc_end_time`（H:i）
-- `khc_venue`（会場名）
-- `khc_round_no`（開催回）
+## ACFフィールドと自動計算
+- `concert_fiscal_year`（開催年度／4月始まり）
+- `concert_month`（開催月）
+- `held_date`（開催日）：保存時に年度・月から第3土曜日を自動計算して上書き。ACFの返り値形式（Ymd or Y-m-d）に合わせて保存します。
+- `slot1_group` / `slot2_group`（出演枠）：`group`投稿を参照。未設定でも表示エラーになりません。
+- `concert_note`（公開用備考）
+- `concert_admin_note`（非公開備考）
 
-これらは MVP 時点での仮フィールドであり、将来 Advanced Custom Fields で管理する前提です。
+`held_date` は管理画面で編集不可（確認用のみ）とし、今後も ACF フィールドとして運用する前提です。
 
 ## 使い方
 1. プラグインを有効化する。
-2. 必要に応じてカスタム投稿タイプ「コンサート」に上記メタキーで開催情報を登録する。
-3. 投稿や固定ページにショートコード `[khc_next_concert]` を挿入すると、次回開催予定が表示されます。
+2. ACFフィールドグループ（`concert_fiscal_year` / `concert_month` / `held_date` / `slot1_group` / `slot2_group` / `concert_note` / `concert_admin_note` など）をコンサート投稿タイプに紐付ける。
+3. コンサート投稿を保存すると、年度・月から開催日（第3土曜日）が自動算出され `held_date` に反映されます。
+4. 投稿や固定ページにショートコード `[khc_next_concert]` を挿入すると、次回開催予定が表示されます。開催時間は固定で 12:00–13:00、出演枠は 12:00– / 12:30– が表示されます。
 
 ## 今後の追加予定
 - スケジュール一覧表示

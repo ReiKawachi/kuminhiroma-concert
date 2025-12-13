@@ -72,6 +72,48 @@
     margin: 0 0 12px;
 }
 
+.c-next-concert__note {
+    font-size: 1.4rem;
+    margin: 0 0 12px;
+    color: #444;
+}
+
+.c-next-concert__subheading {
+    font-size: 1.4rem;
+    margin: 0 0 8px;
+}
+
+.c-next-concert__performer-list {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.c-next-concert__performer {
+    display: grid;
+    grid-template-columns: 84px 1fr;
+    gap: 8px;
+    align-items: center;
+}
+
+.c-next-concert__performer-time {
+    font-size: 1.3rem;
+    color: #444;
+}
+
+.c-next-concert__performer-name {
+    font-size: 1.4rem;
+    color: #1e73be;
+    text-decoration: none;
+}
+
+.c-next-concert__performer-name:hover,
+.c-next-concert__performer-name:focus {
+    text-decoration: underline;
+}
+
 .c-next-concert__link {
     display: inline-flex;
     align-items: center;

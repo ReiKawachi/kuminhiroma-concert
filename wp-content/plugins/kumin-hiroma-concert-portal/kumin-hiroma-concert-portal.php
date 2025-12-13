@@ -19,6 +19,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-taxonomies.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-helpers.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-shortcodes.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-activator.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-acf-hooks.php';
 
 /**
  * プラグイン初期化フック設定。
@@ -27,10 +28,12 @@ function khc_init_plugin() {
     $posttypes  = new KHC_Posttypes();
     $taxonomies = new KHC_Taxonomies();
     $shortcodes = new KHC_Shortcodes();
+    $acf_hooks  = new KHC_ACF_Hooks();
 
     add_action( 'init', [ $posttypes, 'register_post_types' ] );
     add_action( 'init', [ $taxonomies, 'register_taxonomies' ] );
     add_action( 'init', [ $shortcodes, 'register_shortcodes' ] );
+    add_action( 'init', [ $acf_hooks, 'register_hooks' ] );
 }
 add_action( 'plugins_loaded', 'khc_init_plugin' );
 
