@@ -1,0 +1,135 @@
+/*
+ * Styling guidelines
+ * - font-size: rem only (html 62.5% base)
+ * - spacing: px
+ * - breakpoints: SP (0-767px), TAB (768-1023px), PC (1024px-)
+ * - Layers: l- for layout containers, c- for components, u- for utilities
+ */
+
+.l-next-concert {
+    padding: 16px;
+}
+
+.c-next-concert {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #fff;
+    color: #222;
+}
+
+.c-next-concert__header {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.c-next-concert__eyebrow {
+    font-size: 1.2rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6d6d6d;
+    margin: 0;
+}
+
+.c-next-concert__title {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.c-next-concert__round {
+    font-size: 1.4rem;
+    margin: 0;
+    color: #444;
+}
+
+.c-next-concert__details {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 12px;
+}
+
+.c-next-concert__detail {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: 8px;
+}
+
+.c-next-concert__label {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.c-next-concert__value {
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.c-next-concert__excerpt {
+    font-size: 1.4rem;
+    margin: 0 0 12px;
+}
+
+.c-next-concert__link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-size: 1.4rem;
+    color: #fff;
+    background-color: #1e73be;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.c-next-concert__link:hover,
+.c-next-concert__link:focus {
+    background-color: #135a96;
+}
+
+.c-next-concert__empty {
+    font-size: 1.4rem;
+    margin: 0;
+}
+
+.u-separator {
+    margin: 0 4px;
+}
+
+@media (min-width: 768px) {
+    .l-next-concert {
+        padding: 24px;
+    }
+
+    .c-next-concert__title {
+        font-size: 2.4rem;
+    }
+
+    .c-next-concert__details {
+        gap: 10px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .l-next-concert {
+        padding: 32px;
+    }
+
+    .c-next-concert {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+        align-items: start;
+    }
+
+    .c-next-concert__header {
+        margin-bottom: 0;
+    }
+
+    .c-next-concert__details {
+        margin: 0;
+    }
+}
