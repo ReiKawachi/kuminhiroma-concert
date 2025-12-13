@@ -32,11 +32,9 @@ class KHC_Concert_List_Admin {
 
         $fiscal_years = $this->get_distinct_fiscal_years();
         $year_value   = isset( $_GET['concert_fiscal_year'] ) ? absint( wp_unslash( $_GET['concert_fiscal_year'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $year_label   = '開催年度で絞り込み';
 
-        echo '<span class="khc-admin-filter-label">' . esc_html__( '年度別：', 'kumin-hiroma-concert-portal' ) . '</span>';
-        echo '<label for="concert_fiscal_year" class="screen-reader-text">' . esc_html( $year_label ) . '</label>';
-        echo '<select name="concert_fiscal_year" id="concert_fiscal_year">';
+        echo '<label for="concert_fiscal_year" class="khc-admin-filter-label" style="margin-right:6px;">' . esc_html__( '年度別', 'kumin-hiroma-concert-portal' ) . '</label>';
+        echo '<select name="concert_fiscal_year" id="concert_fiscal_year" style="margin-right:12px;">';
         echo '<option value="">' . esc_html__( 'すべて', 'kumin-hiroma-concert-portal' ) . '</option>';
 
         foreach ( $fiscal_years as $year ) {
@@ -50,12 +48,10 @@ class KHC_Concert_List_Admin {
 
         echo '</select>';
 
-        $months     = $this->get_distinct_concert_months();
-        $selected   = isset( $_GET['concert_month'] ) ? absint( wp_unslash( $_GET['concert_month'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $label_text = '開催月で絞り込み';
+        $months   = $this->get_distinct_concert_months();
+        $selected = isset( $_GET['concert_month'] ) ? absint( wp_unslash( $_GET['concert_month'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-        echo '<span class="khc-admin-filter-label">' . esc_html__( '月別：', 'kumin-hiroma-concert-portal' ) . '</span>';
-        echo '<label for="concert_month" class="screen-reader-text">' . esc_html( $label_text ) . '</label>';
+        echo '<label for="concert_month" class="khc-admin-filter-label" style="margin-right:6px;">' . esc_html__( '月別', 'kumin-hiroma-concert-portal' ) . '</label>';
         echo '<select name="concert_month" id="concert_month">';
         echo '<option value="">' . esc_html__( 'すべて', 'kumin-hiroma-concert-portal' ) . '</option>';
 
