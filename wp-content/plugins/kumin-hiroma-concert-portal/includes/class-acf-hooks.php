@@ -22,7 +22,8 @@ class KHC_ACF_Hooks {
         add_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
         add_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
         add_filter( 'acf/load_field/name=held_date', [ $this, 'make_held_date_readonly' ] );
-        add_filter( 'acf/load_field/name=concert_fiscal_year', [ $this, 'populate_concert_fiscal_year_choices' ] );
+        add_filter( 'acf/load_field/name=concert_fiscal_year', [ $this, 'populate_concert_fiscal_year_choices' ], 100 );
+        $this->register_concert_fiscal_year_key_filter();
     }
 
     /**
@@ -90,6 +91,10 @@ class KHC_ACF_Hooks {
      * @return array
      */
     public function populate_concert_fiscal_year_choices( $field ) {
+        if ( isset( $field['_khc_choices_populated'] ) ) {
+            return $field;
+        }
+
         $now_timezone = wp_timezone();
         $current_year = (int) wp_date( 'Y', current_time( 'timestamp' ), $now_timezone );
 
@@ -108,7 +113,26 @@ class KHC_ACF_Hooks {
 
         $field['default_value'] = $current_year;
 
+        $field['_khc_choices_populated'] = true;
+
         return $field;
+    }
+
+    /**
+     * 開催年度フィールドのキー取得に成功した場合、キー指定の load_field でも処理を適用する。
+     */
+    private function register_concert_fiscal_year_key_filter() {
+        if ( ! function_exists( 'acf_get_field' ) ) {
+            return;
+        }
+
+        $field = acf_get_field( KHC_Helpers::FIELD_KEYS['fiscal_year'] );
+
+        if ( ! is_array( $field ) || empty( $field['key'] ) ) {
+            return;
+        }
+
+        add_filter( 'acf/load_field/key=' . $field['key'], [ $this, 'populate_concert_fiscal_year_choices' ], 100 );
     }
 
     /**
