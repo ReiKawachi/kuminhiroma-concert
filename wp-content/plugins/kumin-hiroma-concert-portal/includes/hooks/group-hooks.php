@@ -48,9 +48,8 @@ class KHC_Group_Hooks {
             return;
         }
 
-        $date_label = wp_date( 'Y年n月j日', time(), wp_timezone() );
-        $new_title  = sprintf( '【%s】%s', $date_label, $group_name );
-        $new_slug   = sanitize_title( $group_name );
+        $new_title = $group_name;
+        $new_slug  = sanitize_title( $group_name );
 
         self::$is_processing = true;
         remove_action( 'acf/save_post', [ $this, 'update_group_title_and_slug' ], 20 );

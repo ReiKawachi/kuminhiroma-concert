@@ -45,7 +45,7 @@ class KHC_Posttypes {
                 'has_archive'  => true,
                 'menu_icon'    => 'dashicons-microphone',
                 'rewrite'      => [ 'slug' => 'kumin-concert' ],
-                'supports'     => [ 'title', 'editor', 'thumbnail', 'excerpt' ],
+                'supports'     => [ 'title', 'editor', 'thumbnail' ],
             ]
         );
     }
@@ -78,7 +78,7 @@ class KHC_Posttypes {
                 'has_archive'  => true,
                 'menu_icon'    => 'dashicons-groups',
                 'rewrite'      => [ 'slug' => 'kumin-group' ],
-                'supports'     => [ 'title', 'editor', 'thumbnail', 'excerpt' ],
+                'supports'     => [ 'title', 'editor', 'thumbnail' ],
             ]
         );
     }

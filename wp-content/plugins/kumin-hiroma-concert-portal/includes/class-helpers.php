@@ -9,6 +9,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class KHC_Helpers {
     /**
+     * 開催日を保存する際のフォーマット。
+     */
+    public const HELD_DATE_FORMAT = 'Y-m-d';
+
+    /**
      * 開催情報に用いるACFフィールド名をまとめる。
      */
     public const FIELD_KEYS = [
@@ -54,11 +59,11 @@ class KHC_Helpers {
      * @return WP_Post|null
      */
     public static function get_next_concert() {
-        $date_format     = self::get_held_date_format();
+        $date_format     = self::HELD_DATE_FORMAT;
         $today           = wp_date( $date_format, time(), wp_timezone() );
         $held_date_field = self::FIELD_KEYS['held_date'];
-        $orderby         = ( 'Ymd' === $date_format ) ? 'meta_value_num' : 'meta_value';
-        $meta_type       = ( 'Ymd' === $date_format ) ? 'NUMERIC' : 'DATE';
+        $orderby         = 'meta_value';
+        $meta_type       = 'DATE';
 
         $query = new WP_Query(
             [
@@ -142,7 +147,7 @@ class KHC_Helpers {
             }
         }
 
-        return 'Ymd';
+        return self::HELD_DATE_FORMAT;
     }
 
     /**
@@ -194,9 +199,7 @@ class KHC_Helpers {
             return null;
         }
 
-        $return_format = self::get_held_date_format( $post_id );
-
-        return $held_date->format( $return_format );
+        return $held_date->format( self::HELD_DATE_FORMAT );
     }
 
     /**
@@ -211,14 +214,14 @@ class KHC_Helpers {
             return null;
         }
 
-        $format   = self::get_held_date_format( $post_id );
         $timezone = wp_timezone();
-        $date     = DateTimeImmutable::createFromFormat( $format, $held_date_value, $timezone );
+        $date     = DateTimeImmutable::createFromFormat( self::HELD_DATE_FORMAT, $held_date_value, $timezone );
 
         if ( $date instanceof DateTimeImmutable ) {
             return $date;
         }
 
+        $format   = self::get_held_date_format( $post_id );
         $fallback = DateTimeImmutable::createFromFormat( 'Y-m-d', $held_date_value, $timezone );
 
         if ( $fallback instanceof DateTimeImmutable ) {

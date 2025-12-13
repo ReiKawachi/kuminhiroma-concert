@@ -58,6 +58,8 @@ class KHC_Concert_Hooks {
         }
 
         self::$is_processing = true;
+        remove_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
+        remove_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
 
         if ( function_exists( 'update_field' ) ) {
             update_field( KHC_Helpers::FIELD_KEYS['held_date'], $held_date_value, $resolved_post_id );
@@ -65,6 +67,23 @@ class KHC_Concert_Hooks {
             update_post_meta( $resolved_post_id, KHC_Helpers::FIELD_KEYS['held_date'], $held_date_value );
         }
 
+        $held_date = KHC_Helpers::parse_held_date( $held_date_value, $resolved_post_id );
+
+        if ( $held_date instanceof DateTimeImmutable ) {
+            $title = $held_date->format( 'Y年n月j日' );
+            $slug  = $held_date->format( 'Y-m-d' );
+
+            wp_update_post(
+                [
+                    'ID'         => $resolved_post_id,
+                    'post_title' => $title,
+                    'post_name'  => sanitize_title( $slug ),
+                ]
+            );
+        }
+
+        add_action( 'acf/save_post', [ $this, 'update_held_date_on_save' ], 20 );
+        add_action( 'save_post_concert', [ $this, 'update_held_date_on_save' ], 20 );
         self::$is_processing = false;
     }
 
