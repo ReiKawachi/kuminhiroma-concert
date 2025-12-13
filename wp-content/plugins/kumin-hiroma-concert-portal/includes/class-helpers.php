@@ -22,6 +22,17 @@ class KHC_Helpers {
     ];
 
     /**
+     * 出演者管理に用いるフィールド名をまとめる。
+     */
+    public const GROUP_FIELD_KEYS = [
+        'group_name' => 'group_name',
+        'genre'      => 'genre',
+        'desc'       => 'desc',
+        'photo'      => 'photo',
+        'songs'      => 'songs',
+    ];
+
+    /**
      * コンサート全体の固定時間。
      */
     public const CONCERT_TIME = [
@@ -87,6 +98,27 @@ class KHC_Helpers {
         }
 
         $field_key = self::FIELD_KEYS[ $key_name ];
+
+        if ( function_exists( 'get_field' ) ) {
+            return get_field( $field_key, $post_id );
+        }
+
+        return get_post_meta( $post_id, $field_key, true );
+    }
+
+    /**
+     * group用のACFまたはメタから値を取得する。
+     *
+     * @param int    $post_id  投稿ID。
+     * @param string $key_name self::GROUP_FIELD_KEYS のキー名。
+     * @return mixed
+     */
+    public static function get_group_field_value( $post_id, $key_name ) {
+        if ( ! isset( self::GROUP_FIELD_KEYS[ $key_name ] ) ) {
+            return '';
+        }
+
+        $field_key = self::GROUP_FIELD_KEYS[ $key_name ];
 
         if ( function_exists( 'get_field' ) ) {
             return get_field( $field_key, $post_id );

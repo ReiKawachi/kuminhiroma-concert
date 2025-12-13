@@ -19,7 +19,10 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-taxonomies.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-helpers.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-shortcodes.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-activator.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-acf-hooks.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/admin/group-admin.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/hooks/concert-hooks.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/hooks/group-hooks.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/shortcodes/next-concert.php';
 
 /**
  * プラグイン初期化フック設定。
@@ -28,12 +31,18 @@ function khc_init_plugin() {
     $posttypes  = new KHC_Posttypes();
     $taxonomies = new KHC_Taxonomies();
     $shortcodes = new KHC_Shortcodes();
-    $acf_hooks  = new KHC_ACF_Hooks();
+    $group_admin = new KHC_Group_Admin();
+    $concert_hooks = new KHC_Concert_Hooks();
+    $group_hooks   = new KHC_Group_Hooks();
+    $next_concert_shortcode = new KHC_Next_Concert_Shortcode();
 
     add_action( 'init', [ $posttypes, 'register_post_types' ] );
     add_action( 'init', [ $taxonomies, 'register_taxonomies' ] );
     add_action( 'init', [ $shortcodes, 'register_shortcodes' ] );
-    add_action( 'init', [ $acf_hooks, 'register_hooks' ] );
+    $concert_hooks->register_hooks();
+    $group_hooks->register_hooks();
+    $group_admin->register_admin_hooks();
+    $next_concert_shortcode->register();
 }
 add_action( 'plugins_loaded', 'khc_init_plugin' );
 
