@@ -34,6 +34,7 @@ class KHC_Concert_List_Admin {
         $year_value   = isset( $_GET['concert_fiscal_year'] ) ? absint( wp_unslash( $_GET['concert_fiscal_year'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $year_label   = '開催年度で絞り込み';
 
+        echo '<span class="khc-admin-filter-label">' . esc_html__( '年度別：', 'kumin-hiroma-concert-portal' ) . '</span>';
         echo '<label for="concert_fiscal_year" class="screen-reader-text">' . esc_html( $year_label ) . '</label>';
         echo '<select name="concert_fiscal_year" id="concert_fiscal_year">';
         echo '<option value="">' . esc_html__( 'すべて', 'kumin-hiroma-concert-portal' ) . '</option>';
@@ -53,6 +54,7 @@ class KHC_Concert_List_Admin {
         $selected   = isset( $_GET['concert_month'] ) ? absint( wp_unslash( $_GET['concert_month'] ) ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $label_text = '開催月で絞り込み';
 
+        echo '<span class="khc-admin-filter-label">' . esc_html__( '月別：', 'kumin-hiroma-concert-portal' ) . '</span>';
         echo '<label for="concert_month" class="screen-reader-text">' . esc_html( $label_text ) . '</label>';
         echo '<select name="concert_month" id="concert_month">';
         echo '<option value="">' . esc_html__( 'すべて', 'kumin-hiroma-concert-portal' ) . '</option>';
