@@ -179,12 +179,7 @@ class KHC_Group_Admin {
                 break;
             case 'author':
                 $contact = KHC_Helpers::get_group_field_value( $post_id, 'contact_name' );
-
-                if ( empty( $contact ) ) {
-                    $contact = get_the_author_meta( 'display_name', (int) get_post_field( 'post_author', $post_id ) );
-                }
-
-                echo esc_html( $contact ? $contact : '—' );
+                echo esc_html( $contact ? $contact : '－' );
                 break;
         }
     }
