@@ -123,30 +123,14 @@ class KHC_Group_Admin {
     public function add_group_columns( $columns ) {
         $new_columns = [];
 
-        foreach ( $columns as $key => $label ) {
-            if ( 'cb' === $key ) {
-                $new_columns[ $key ] = $label;
-                continue;
-            }
-
-            if ( 'title' === $key ) {
-                $new_columns['title']               = $label;
-                $new_columns['khc_group_genre']     = 'ジャンル';
-                $new_columns['khc_group_category']  = 'カテゴリー';
-                $new_columns['author']              = '担当者';
-                continue;
-            }
-
-            if ( 'author' === $key ) {
-                continue;
-            }
-
-            $new_columns[ $key ] = $label;
+        if ( isset( $columns['cb'] ) ) {
+            $new_columns['cb'] = $columns['cb'];
         }
 
-        if ( ! isset( $new_columns['author'] ) ) {
-            $new_columns['author'] = '担当者';
-        }
+        $new_columns['title']              = $columns['title'] ?? 'タイトル';
+        $new_columns['khc_group_genre']    = 'ジャンル';
+        $new_columns['khc_group_category'] = 'カテゴリー';
+        $new_columns['khc_group_contact']  = '担当者';
 
         return $new_columns;
     }
@@ -161,13 +145,13 @@ class KHC_Group_Admin {
         switch ( $column ) {
             case 'khc_group_genre':
                 $genre = KHC_Helpers::get_group_field_value( $post_id, 'genre' );
-                echo esc_html( $genre ? $genre : '—' );
+                echo esc_html( $genre ? $genre : '－' );
                 break;
             case 'khc_group_category':
                 $category = KHC_Helpers::get_group_field_value( $post_id, 'group_category' );
 
                 if ( empty( $category ) ) {
-                    echo '—';
+                    echo '－';
                     break;
                 }
 
@@ -177,7 +161,7 @@ class KHC_Group_Admin {
 
                 echo esc_html( $category );
                 break;
-            case 'author':
+            case 'khc_group_contact':
                 $contact = KHC_Helpers::get_group_field_value( $post_id, 'contact_name' );
                 echo esc_html( $contact ? $contact : '－' );
                 break;
